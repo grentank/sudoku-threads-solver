@@ -1,6 +1,7 @@
 import { readFile } from 'fs/promises';
 import { sudokuDimention } from '../types/sudoku';
 import type { SudokuGridType, SudokuRowType, SudokuValidNumberType } from '../types/sudoku';
+import type { IterateThroughSudokuCallback } from '../types/states';
 
 export default class Model {
   static async getSudoku(puzzle: number): Promise<SudokuGridType> {
@@ -55,5 +56,20 @@ export default class Model {
       }
     }
     return false;
+  }
+
+  static iterateThroughSudoku(
+    sudokuGrid: SudokuGridType,
+    callback: IterateThroughSudokuCallback,
+  ): void {
+    const flag = { stop: false };
+    for (let rowIndex = 0; rowIndex < sudokuGrid.length; rowIndex += 1) {
+      const row = sudokuGrid[rowIndex];
+      for (let colIndex = 0; colIndex < row.length; colIndex += 1) {
+        const cell = row[colIndex];
+        callback(rowIndex, colIndex, cell, flag);
+        if (flag.stop) return;
+      }
+    }
   }
 }

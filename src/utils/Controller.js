@@ -23,70 +23,64 @@ var Controller = /** @class */ (function () {
             return null;
         return parsed;
     };
-    Controller.insertAllValidNumbers = function (initSudoku) {
-        var sudokuGrid = JSON.parse(JSON.stringify(initSudoku)); // structuredClone(initSudoku);
-        var amountOfInserts = 1;
-        while (amountOfInserts !== 0) {
-            amountOfInserts = 0;
-            for (var rowIndex = 0; rowIndex < sudokuGrid.length; rowIndex += 1) {
-                var row = sudokuGrid[rowIndex];
-                for (var colIndex = 0; colIndex < row.length; colIndex += 1) {
-                    var cell = row[colIndex];
-                    if (cell)
-                        continue;
-                    var possibleValues = this.getPossibleValues(sudokuGrid, [rowIndex, colIndex]);
-                    if (possibleValues.length === 1) {
-                        // eslint-disable-next-line prefer-destructuring
-                        sudokuGrid[rowIndex][colIndex] = possibleValues[0];
-                        amountOfInserts += 1;
-                    }
-                }
-            }
-        }
-        return sudokuGrid;
-    };
-    Controller.solve = function (initSudoku, state) {
-        if (state.solution)
-            return;
-        state.iterations += 1;
-        var sudokuGridClone = JSON.parse(JSON.stringify(initSudoku)); // structuredClone(initSudoku);
-        var sudokuGrid = this.insertAllValidNumbers(sudokuGridClone);
-        for (var rowIndex = 0; rowIndex < sudokuGrid.length; rowIndex += 1) {
-            var row = sudokuGrid[rowIndex];
-            for (var colIndex = 0; colIndex < row.length; colIndex += 1) {
-                var cell = row[colIndex];
+    Controller.insertAllValidNumbers = function (sudokuGrid) {
+        var _this = this;
+        // const sudokuGrid = structuredClone(initSudoku);
+        var insertsState = { amountOfInserts: 1, recursionInvalid: false };
+        while (insertsState.amountOfInserts !== 0) {
+            insertsState.amountOfInserts = 0;
+            Model_1.default.iterateThroughSudoku(sudokuGrid, function (rowIndex, colIndex, cell) {
                 if (cell)
-                    continue;
-                var possibleValues = this.getPossibleValues(sudokuGrid, [rowIndex, colIndex]);
+                    return;
+                var possibleValues = _this.getPossibleValues(sudokuGrid, [rowIndex, colIndex]);
                 if (possibleValues.length === 1) {
                     // eslint-disable-next-line prefer-destructuring
                     sudokuGrid[rowIndex][colIndex] = possibleValues[0];
-                }
-                else if (possibleValues.length > 1) {
-                    for (var currentGuessIndex = 0; currentGuessIndex < possibleValues.length; currentGuessIndex += 1) {
-                        var currentGuess = possibleValues[currentGuessIndex];
-                        sudokuGrid[rowIndex][colIndex] = currentGuess;
-                        var currentNulls = sudokuGrid.flat().filter(function (n) { return n === null; }).length;
-                        if (currentNulls < state.minNulls)
-                            state.minNulls = currentNulls;
-                        var recursionResult = this.solve(sudokuGrid, state);
-                        if (recursionResult) {
-                            state.solution = recursionResult;
-                            return recursionResult;
-                        }
-                    }
+                    insertsState.amountOfInserts += 1;
                 }
                 else if (possibleValues.length === 0) {
-                    return;
+                    insertsState.recursionInvalid = true;
+                }
+            });
+        }
+        return insertsState.recursionInvalid;
+    };
+    Controller.solve = function (initSudoku, state) {
+        var _this = this;
+        if (state.solution)
+            return;
+        state.iterations += 1;
+        if (state.iterations % 10000 === 0)
+            View_1.default.clearRenderSudoku(initSudoku, state);
+        var sudokuGrid = structuredClone(initSudoku);
+        var isRecursionInvalid = this.insertAllValidNumbers(sudokuGrid);
+        if (isRecursionInvalid)
+            return;
+        if (!Model_1.default.hasEmptySpaces(sudokuGrid)) {
+            state.solution = sudokuGrid;
+            return sudokuGrid;
+        }
+        Model_1.default.iterateThroughSudoku(sudokuGrid, function (rowIndex, colIndex, cell, flag) {
+            if (cell)
+                return;
+            var possibleValues = _this.getPossibleValues(sudokuGrid, [rowIndex, colIndex]);
+            if (possibleValues.length > 1) {
+                for (var curGuessInd = 0; curGuessInd < possibleValues.length; curGuessInd += 1) {
+                    var currentGuess = possibleValues[curGuessInd];
+                    sudokuGrid[rowIndex][colIndex] = currentGuess;
+                    var currentNulls = sudokuGrid.flat().filter(function (n) { return n === null; }).length;
+                    if (currentNulls < state.minNulls)
+                        state.minNulls = currentNulls;
+                    _this.solve(sudokuGrid, state);
+                    if (state.solution)
+                        flag.stop = true;
                 }
             }
-        }
+        });
         if (!Model_1.default.hasEmptySpaces(sudokuGrid))
             return sudokuGrid;
         // console.log('Recursion failed');
         // console.table(sudokuGrid)
-        if (state.iterations % 10000 === 0)
-            View_1.default.clearRenderSudoku(sudokuGrid, state);
     };
     Controller.getPossibleValues = function (sudoku, indexes) {
         var allValues = Model_1.default.generateSudokuNumbers();

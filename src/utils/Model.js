@@ -101,6 +101,18 @@ var Model = /** @class */ (function () {
         }
         return false;
     };
+    Model.iterateThroughSudoku = function (sudokuGrid, callback) {
+        var flag = { stop: false };
+        for (var rowIndex = 0; rowIndex < sudokuGrid.length; rowIndex += 1) {
+            var row = sudokuGrid[rowIndex];
+            for (var colIndex = 0; colIndex < row.length; colIndex += 1) {
+                var cell = row[colIndex];
+                callback(rowIndex, colIndex, cell, flag);
+                if (flag.stop)
+                    return;
+            }
+        }
+    };
     return Model;
 }());
 exports.default = Model;

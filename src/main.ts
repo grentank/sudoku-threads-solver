@@ -13,10 +13,10 @@ async function run(): Promise<void> {
     iterations: 0,
     minNulls: sudokuToSolve.flat().filter((el) => el === null).length,
   };
-  const result = Controller.solve(sudokuToSolve, state);
-  if (result) {
+  Controller.solve(sudokuToSolve, state);
+  if (state.solution) {
     View.clearRenderSudoku(sudokuToSolve, state);
-    View.renderSudoku(result, state);
+    View.renderSudoku(state.solution, state);
     console.log('Iterations:', state.iterations);
   } else {
     console.log('No solution found');
