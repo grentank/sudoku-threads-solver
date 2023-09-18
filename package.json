@@ -6,7 +6,9 @@
     "dev": "tsc src/main.ts && node src/main.js",
     "build": "tsc src/main.ts",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "start": "node src/main.js"
+    "start": "node src/main.js",
+    "build:threads": "tsc src/threads.ts",
+    "start:threads": "node src/threads.js"
   },
   "devDependencies": {
     "@types/node": "^20.6.2",

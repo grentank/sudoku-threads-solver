@@ -4,6 +4,7 @@ import Model from './utils/Model';
 import View from './utils/View';
 
 async function run(): Promise<void> {
+  const timeStart = Date.now();
   const puzzle = Controller.argvGetter();
   if (!puzzle) return;
   const sudokuToSolve = await Model.getSudoku(puzzle);
@@ -18,6 +19,8 @@ async function run(): Promise<void> {
     View.clearRenderSudoku(sudokuToSolve, state);
     View.renderSudoku(state.solution, state);
     console.log('Iterations:', state.iterations);
+    const processDuration = Date.now() - timeStart;
+    console.log('Duration:', processDuration, 'ms');
   } else {
     console.log('No solution found');
   }

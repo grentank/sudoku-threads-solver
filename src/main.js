@@ -41,10 +41,11 @@ var Model_1 = require("./utils/Model");
 var View_1 = require("./utils/View");
 function run() {
     return __awaiter(this, void 0, void 0, function () {
-        var puzzle, sudokuToSolve, state;
+        var timeStart, puzzle, sudokuToSolve, state, processDuration;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
+                    timeStart = Date.now();
                     puzzle = Controller_1.default.argvGetter();
                     if (!puzzle)
                         return [2 /*return*/];
@@ -62,6 +63,8 @@ function run() {
                         View_1.default.clearRenderSudoku(sudokuToSolve, state);
                         View_1.default.renderSudoku(state.solution, state);
                         console.log('Iterations:', state.iterations);
+                        processDuration = Date.now() - timeStart;
+                        console.log('Duration:', processDuration, 'ms');
                     }
                     else {
                         console.log('No solution found');

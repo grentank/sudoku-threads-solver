@@ -79,8 +79,6 @@ var Controller = /** @class */ (function () {
         });
         if (!Model_1.default.hasEmptySpaces(sudokuGrid))
             return sudokuGrid;
-        // console.log('Recursion failed');
-        // console.table(sudokuGrid)
     };
     Controller.getPossibleValues = function (sudoku, indexes) {
         var allValues = Model_1.default.generateSudokuNumbers();
