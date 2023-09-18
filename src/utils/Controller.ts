@@ -66,13 +66,15 @@ export default class Controller {
               return recursionResult;
             }
           }
-        }
+        } else if (possibleValues.length === 0) {
+          return;
+        } 
       }
     }
     if (!Model.hasEmptySpaces(sudokuGrid)) return sudokuGrid;
     // console.log('Recursion failed');
     // console.table(sudokuGrid)
-    View.clearRenderSudoku(sudokuGrid);
+    if (state.iterations % 10000 === 0) View.clearRenderSudoku(sudokuGrid, state);
   }
 
   static getPossibleValues(

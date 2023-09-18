@@ -45,7 +45,10 @@ var Controller = /** @class */ (function () {
         }
         return sudokuGrid;
     };
-    Controller.solve = function (initSudoku) {
+    Controller.solve = function (initSudoku, state) {
+        if (state.solution)
+            return;
+        state.iterations += 1;
         var sudokuGridClone = JSON.parse(JSON.stringify(initSudoku)); // structuredClone(initSudoku);
         var sudokuGrid = this.insertAllValidNumbers(sudokuGridClone);
         for (var rowIndex = 0; rowIndex < sudokuGrid.length; rowIndex += 1) {
@@ -63,10 +66,18 @@ var Controller = /** @class */ (function () {
                     for (var currentGuessIndex = 0; currentGuessIndex < possibleValues.length; currentGuessIndex += 1) {
                         var currentGuess = possibleValues[currentGuessIndex];
                         sudokuGrid[rowIndex][colIndex] = currentGuess;
-                        var recursionResult = this.solve(sudokuGrid);
-                        if (recursionResult)
+                        var currentNulls = sudokuGrid.flat().filter(function (n) { return n === null; }).length;
+                        if (currentNulls < state.minNulls)
+                            state.minNulls = currentNulls;
+                        var recursionResult = this.solve(sudokuGrid, state);
+                        if (recursionResult) {
+                            state.solution = recursionResult;
                             return recursionResult;
+                        }
                     }
+                }
+                else if (possibleValues.length === 0) {
+                    return;
                 }
             }
         }
@@ -74,7 +85,8 @@ var Controller = /** @class */ (function () {
             return sudokuGrid;
         // console.log('Recursion failed');
         // console.table(sudokuGrid)
-        View_1.default.clearRenderSudoku(sudokuGrid);
+        if (state.iterations % 10000 === 0)
+            View_1.default.clearRenderSudoku(sudokuGrid, state);
     };
     Controller.getPossibleValues = function (sudoku, indexes) {
         var allValues = Model_1.default.generateSudokuNumbers();

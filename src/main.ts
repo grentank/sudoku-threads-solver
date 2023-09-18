@@ -15,8 +15,9 @@ async function run(): Promise<void> {
   };
   const result = Controller.solve(sudokuToSolve, state);
   if (result) {
-    View.clearRenderSudoku(sudokuToSolve);
-    View.renderSudoku(result);
+    View.clearRenderSudoku(sudokuToSolve, state);
+    View.renderSudoku(result, state);
+    console.log('Iterations:', state.iterations);
   } else {
     console.log('No solution found');
   }

@@ -41,7 +41,7 @@ var Model_1 = require("./utils/Model");
 var View_1 = require("./utils/View");
 function run() {
     return __awaiter(this, void 0, void 0, function () {
-        var puzzle, sudokuToSolve, result;
+        var puzzle, sudokuToSolve, state, result;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -52,10 +52,16 @@ function run() {
                 case 1:
                     sudokuToSolve = _a.sent();
                     console.table(sudokuToSolve);
-                    result = Controller_1.default.solve(sudokuToSolve);
+                    state = {
+                        solution: null,
+                        iterations: 0,
+                        minNulls: sudokuToSolve.flat().filter(function (el) { return el === null; }).length,
+                    };
+                    result = Controller_1.default.solve(sudokuToSolve, state);
                     if (result) {
-                        View_1.default.clearRenderSudoku(sudokuToSolve);
-                        View_1.default.renderSudoku(result);
+                        View_1.default.clearRenderSudoku(sudokuToSolve, state);
+                        View_1.default.renderSudoku(result, state);
+                        console.log('Iterations:', state.iterations);
                     }
                     else {
                         console.log('No solution found');
