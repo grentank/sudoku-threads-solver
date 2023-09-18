@@ -80,14 +80,16 @@ var Model = /** @class */ (function () {
         return sudokuNumbers;
     };
     Model.getSudokuBox = function (sudoku, indexes) {
-        var topLeftCorner = [(indexes[0] / 3) * 3, (indexes[1] / 3) * 3];
+        var topLeftCorner = [indexes[0] - (indexes[0] % 3), indexes[1] - (indexes[1] % 3)];
+        // console.log(indexes, '->', topLeftCorner);
         var result = [];
         for (var i = topLeftCorner[0]; i < topLeftCorner[0] + 3; i += 1) {
             for (var j = topLeftCorner[1]; j < topLeftCorner[1] + 3; j += 1) {
-                if (i !== indexes[0] || j !== indexes[1])
+                if (!(i === indexes[0] && j === indexes[1]))
                     result.push(sudoku[i][j]);
             }
         }
+        // console.log(indexes, ', topleft:', topLeftCorner, 'result:', result);
         return result;
     };
     Model.hasEmptySpaces = function (sudoku) {

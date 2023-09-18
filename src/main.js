@@ -38,6 +38,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Controller_1 = require("./utils/Controller");
 var Model_1 = require("./utils/Model");
+var View_1 = require("./utils/View");
 function run() {
     return __awaiter(this, void 0, void 0, function () {
         var puzzle, sudokuToSolve, result;
@@ -50,9 +51,11 @@ function run() {
                     return [4 /*yield*/, Model_1.default.getSudoku(puzzle)];
                 case 1:
                     sudokuToSolve = _a.sent();
+                    console.table(sudokuToSolve);
                     result = Controller_1.default.solve(sudokuToSolve);
                     if (result) {
-                        console.table(result);
+                        View_1.default.clearRenderSudoku(sudokuToSolve);
+                        View_1.default.renderSudoku(result);
                     }
                     else {
                         console.log('No solution found');

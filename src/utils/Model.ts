@@ -1,4 +1,4 @@
-import {readFile} from 'fs/promises';
+import { readFile } from 'fs/promises';
 import { sudokuDimention } from '../types/sudoku';
 import type { SudokuGridType, SudokuRowType, SudokuValidNumberType } from '../types/sudoku';
 
@@ -36,13 +36,15 @@ export default class Model {
   }
 
   static getSudokuBox(sudoku: SudokuGridType, indexes: [number, number]): SudokuRowType {
-    const topLeftCorner = [(indexes[0] / 3) * 3, (indexes[1] / 3) * 3];
+    const topLeftCorner = [indexes[0] - (indexes[0] % 3), indexes[1] - (indexes[1] % 3)];
+    // console.log(indexes, '->', topLeftCorner);
     const result: SudokuRowType = [];
     for (let i = topLeftCorner[0]; i < topLeftCorner[0] + 3; i += 1) {
       for (let j = topLeftCorner[1]; j < topLeftCorner[1] + 3; j += 1) {
-        if (i !== indexes[0] || j !== indexes[1]) result.push(sudoku[i][j]);
+        if (!(i === indexes[0] && j === indexes[1])) result.push(sudoku[i][j]);
       }
     }
+    // console.log(indexes, ', topleft:', topLeftCorner, 'result:', result);
     return result;
   }
 

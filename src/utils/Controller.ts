@@ -1,5 +1,7 @@
+import type { RecursionState } from '../types/states';
 import type { SudokuGridType, SudokuValidNumberType } from '../types/sudoku';
 import Model from './Model';
+import View from './View';
 
 export default class Controller {
   static argvGetter(): number | null {
@@ -10,19 +12,43 @@ export default class Controller {
     return parsed;
   }
 
-  static solve(initSudoku: SudokuGridType): SudokuGridType | undefined {
-    const sudokuGrid = structuredClone(initSudoku);
-    let amountOfInserts = 0;
+  static insertAllValidNumbers(initSudoku: SudokuGridType): SudokuGridType {
+    const sudokuGrid = JSON.parse(JSON.stringify(initSudoku)) as SudokuGridType; // structuredClone(initSudoku);
+    let amountOfInserts = 1;
+    while (amountOfInserts !== 0) {
+      amountOfInserts = 0;
+      for (let rowIndex = 0; rowIndex < sudokuGrid.length; rowIndex += 1) {
+        const row = sudokuGrid[rowIndex];
+        for (let colIndex = 0; colIndex < row.length; colIndex += 1) {
+          const cell = row[colIndex];
+          if (cell) continue;
+          const possibleValues = this.getPossibleValues(sudokuGrid, [rowIndex, colIndex]);
+          if (possibleValues.length === 1) {
+            // eslint-disable-next-line prefer-destructuring
+            sudokuGrid[rowIndex][colIndex] = possibleValues[0];
+            amountOfInserts += 1;
+          }
+        }
+      }
+    }
+    return sudokuGrid;
+  }
+
+  static solve(initSudoku: SudokuGridType, state: RecursionState): SudokuGridType | undefined {
+    if (state.solution) return;
+    state.iterations += 1;
+    const sudokuGridClone = JSON.parse(JSON.stringify(initSudoku)) as SudokuGridType; // structuredClone(initSudoku);
+    const sudokuGrid = this.insertAllValidNumbers(sudokuGridClone);
     for (let rowIndex = 0; rowIndex < sudokuGrid.length; rowIndex += 1) {
       const row = sudokuGrid[rowIndex];
       for (let colIndex = 0; colIndex < row.length; colIndex += 1) {
         const cell = row[colIndex];
+        if (cell) continue;
         const possibleValues = this.getPossibleValues(sudokuGrid, [rowIndex, colIndex]);
 
         if (possibleValues.length === 1) {
           // eslint-disable-next-line prefer-destructuring
           sudokuGrid[rowIndex][colIndex] = possibleValues[0];
-          amountOfInserts += 1;
         } else if (possibleValues.length > 1) {
           for (
             let currentGuessIndex = 0;
@@ -31,13 +57,22 @@ export default class Controller {
           ) {
             const currentGuess = possibleValues[currentGuessIndex];
             sudokuGrid[rowIndex][colIndex] = currentGuess;
-            const recursionResult = this.solve(sudokuGrid);
-            if (recursionResult) return recursionResult;
+            const currentNulls = sudokuGrid.flat().filter((n) => n === null).length;
+
+            if (currentNulls < state.minNulls) state.minNulls = currentNulls;
+            const recursionResult = this.solve(sudokuGrid, state);
+            if (recursionResult) {
+              state.solution = recursionResult;
+              return recursionResult;
+            }
           }
         }
       }
     }
     if (!Model.hasEmptySpaces(sudokuGrid)) return sudokuGrid;
+    // console.log('Recursion failed');
+    // console.table(sudokuGrid)
+    View.clearRenderSudoku(sudokuGrid);
   }
 
   static getPossibleValues(
