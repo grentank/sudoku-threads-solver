@@ -82,9 +82,9 @@ function run() {
                                     state_1.minNulls = currentNulls;
                                 var worker = new worker_threads_1.Worker(__filename, { workerData: { sudokuGrid: sudokuGrid_1, state: state_1 } });
                                 workers_1.push(worker);
-                                worker.on('message', function (message) {
-                                    if (message.solution) {
-                                        state_1.solution = message.solution;
+                                worker.on('message', function (receivedState) {
+                                    if (receivedState.solution) {
+                                        state_1.solution = receivedState.solution;
                                         flag.stop = true;
                                         workers_1.forEach(function (w) { return void w.terminate(); });
                                         View_1.default.renderSudoku(state_1.solution, state_1);
