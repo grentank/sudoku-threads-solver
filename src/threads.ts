@@ -41,9 +41,9 @@ async function run(): Promise<void> {
 
           const worker = new Worker(__filename, { workerData: { sudokuGrid, state } });
           workers.push(worker);
-          worker.on('message', (message: RecursionState) => {
-            if (message.solution) {
-              state.solution = message.solution;
+          worker.on('message', (receivedState: RecursionState) => {
+            if (receivedState.solution) {
+              state.solution = receivedState.solution;
               flag.stop = true;
               workers.forEach((w) => void w.terminate());
               View.renderSudoku(state.solution, state);
